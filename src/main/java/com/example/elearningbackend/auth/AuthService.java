@@ -27,7 +27,7 @@ public class AuthService {
         }
 
         Role learnerRole = roleRepository.findByName("LEARNER")
-            .orElseThrow(() -> new IllegalStateException("LEARNER role missing"));
+                .orElseThrow(() -> new IllegalStateException("LEARNER role missing"));
 
         User user = new User();
         user.setEmail(email);
@@ -39,12 +39,14 @@ public class AuthService {
         return UserResponse.from(userRepository.save(user));
     }
 
-    @Transactional(readOnly = true)
+    private final RefreshTokenService refreshTokenService; // add next to the other fields
+
+    @Transactional // was readOnly = true: login now writes a refresh token
     public AuthResponse login(LoginRequest request) {
         String email = request.email().trim().toLowerCase();
 
         User user = userRepository.findByEmail(email)
-            .orElseThrow(this::invalidCredentials);
+                .orElseThrow(this::invalidCredentials);
 
         if (user.getPasswordHash() == null
                 || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
@@ -55,12 +57,25 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is not active");
         }
 
+        return buildAuthResponse(user, refreshTokenService.create(user));
+    }
+
+    public AuthResponse refresh(RefreshRequest request) {
+        RefreshTokenService.Rotated rotated = refreshTokenService.rotate(request.refreshToken());
+        return buildAuthResponse(rotated.user(), rotated.newRefreshToken());
+    }
+
+    public void logout(RefreshRequest request) {
+        refreshTokenService.revoke(request.refreshToken());
+    }
+
+    private AuthResponse buildAuthResponse(User user, String refreshToken) {
         return new AuthResponse(
-            jwtService.generateAccessToken(user),
-            "Bearer",
-            jwtService.getExpiresInSeconds(),
-            UserResponse.from(user)
-        );
+                jwtService.generateAccessToken(user),
+                refreshToken,
+                "Bearer",
+                jwtService.getExpiresInSeconds(),
+                UserResponse.from(user));
     }
 
     private ResponseStatusException invalidCredentials() {
