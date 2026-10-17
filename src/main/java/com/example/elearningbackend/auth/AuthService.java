@@ -1,5 +1,6 @@
 package com.example.elearningbackend.auth;
 
+import com.example.elearningbackend.security.JwtService;
 import com.example.elearningbackend.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
@@ -35,5 +37,33 @@ public class AuthService {
         user.getRoles().add(learnerRole);
 
         return UserResponse.from(userRepository.save(user));
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponse login(LoginRequest request) {
+        String email = request.email().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(this::invalidCredentials);
+
+        if (user.getPasswordHash() == null
+                || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw invalidCredentials();
+        }
+
+        if (!"ACTIVE".equals(user.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is not active");
+        }
+
+        return new AuthResponse(
+            jwtService.generateAccessToken(user),
+            "Bearer",
+            jwtService.getExpiresInSeconds(),
+            UserResponse.from(user)
+        );
+    }
+
+    private ResponseStatusException invalidCredentials() {
+        return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
     }
 }
