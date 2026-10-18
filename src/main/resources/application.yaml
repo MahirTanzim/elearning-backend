@@ -1,21 +1,28 @@
 spring:
-  application:
-    name: elearning-backend
-
   datasource:
     url: jdbc:postgresql://localhost:5432/elearning
     username: postgres
     password: 1234
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     show-sql: true
-
-app:
-  jwt:
-    secret: ${JWT_SECRET:qwewedgnktrtwerdmhlsktrefgdmntre}
-    access-token-minutes: 15
-    refresh-token-days: 7
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: openid,profile,email
 
 server:
   port: 8080
+
+app:
+  frontend-url: http://localhost:5173
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-it-must-be-32-bytes-or-more}
+    access-token-minutes: 15
+    refresh-token-days: 7
