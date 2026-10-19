@@ -8,21 +8,23 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HexFormat;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ResponseStatusException;  
 
 @Service
-@RequiredArgsConstructor
 public class RefreshTokenService {
 
     public record Rotated(User user, String newRefreshToken) {}
 
     private final RefreshTokenRepository repository;
     private final SecureRandom random = new SecureRandom();
+
+    public RefreshTokenService(RefreshTokenRepository repository) {
+        this.repository = repository;
+    }
 
     @Value("${app.jwt.refresh-token-days}")
     private long refreshTokenDays;

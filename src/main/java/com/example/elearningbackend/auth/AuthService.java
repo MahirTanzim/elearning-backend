@@ -16,6 +16,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AccountService accountService;
     private final JwtService jwtService;
 
     @Transactional
@@ -36,7 +37,9 @@ public class AuthService {
         user.setAuthProvider("LOCAL");
         user.getRoles().add(learnerRole);
 
-        return UserResponse.from(userRepository.save(user));
+        User saved = userRepository.save(user);
+        accountService.sendVerificationEmail(saved);
+        return UserResponse.from(saved);
     }
 
     private final RefreshTokenService refreshTokenService; // add next to the other fields

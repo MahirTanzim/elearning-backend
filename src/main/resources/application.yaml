@@ -8,6 +8,14 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
   security:
     oauth2:
       client:
@@ -22,6 +30,12 @@ server:
 
 app:
   frontend-url: http://localhost:5173
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:no-reply@elearning.local}
+  tokens:
+    verification-hours: 24
+    reset-minutes: 30
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-change-me-it-must-be-32-bytes-or-more}
     access-token-minutes: 15

@@ -35,5 +35,31 @@ public class AuthController {
         authService.logout(request);
     }
 
+        private final AccountService accountService;   // next to authService
+
+    @PostMapping("/verify-email")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void verifyEmail(@Valid @RequestBody TokenRequest request) {
+        accountService.verifyEmail(request.token());
+    }
+
+    @PostMapping("/resend-verification")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resendVerification(@Valid @RequestBody EmailRequest request) {
+        accountService.resendVerification(request.email());
+    }
+
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void forgotPassword(@Valid @RequestBody EmailRequest request) {
+        accountService.forgotPassword(request.email());
+    }
+
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        accountService.resetPassword(request.token(), request.newPassword());
+    }
+
 
 }

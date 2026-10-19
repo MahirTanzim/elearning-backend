@@ -8,6 +8,7 @@ public record UserResponse(
     String email,
     String fullName,
     String status,
+    boolean emailVerified,
     Set<String> roles
 ) {
     public static UserResponse from(User user) {
@@ -16,6 +17,7 @@ public record UserResponse(
             user.getEmail(),
             user.getFullName(),
             user.getStatus(),
+            user.isEmailVerified(),
             user.getRoles().stream().map(Role::getName).collect(Collectors.toSet())
         );
     }

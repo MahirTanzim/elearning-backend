@@ -12,7 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class GoogleAuthService {
 
-    public record Tokens(String accessToken, String refreshToken) {}
+    public record Tokens(String accessToken, String refreshToken) {
+    }
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -27,7 +28,7 @@ public class GoogleAuthService {
 
         if (user == null) {
             Role learnerRole = roleRepository.findByName("LEARNER")
-                .orElseThrow(() -> new IllegalStateException("LEARNER role missing"));
+                    .orElseThrow(() -> new IllegalStateException("LEARNER role missing"));
 
             user = new User();
             user.setEmail(normalizedEmail);
@@ -42,7 +43,10 @@ public class GoogleAuthService {
             if (!"ACTIVE".equals(user.getStatus())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is not active");
             }
-            // Same email already registered (e.g. with a password): link it to Google.
+            // A password set on an unverified account may belong to an impostor: remove it.
+            if (!user.isEmailVerified()) {
+                user.setPasswordHash(null);
+            }
             if (user.getProviderId() == null) {
                 user.setProviderId(googleId);
             }
@@ -53,8 +57,7 @@ public class GoogleAuthService {
         }
 
         return new Tokens(
-            jwtService.generateAccessToken(user),
-            refreshTokenService.create(user)
-        );
+                jwtService.generateAccessToken(user),
+                refreshTokenService.create(user));
     }
 }
