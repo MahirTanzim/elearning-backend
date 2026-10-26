@@ -14,7 +14,6 @@ public final class ApplicationDtos {
 
     private ApplicationDtos() {}
 
-    // ---------- requests ----------
 
     public record ProfileRequest(
         @Size(max = 150) String headline,
@@ -42,7 +41,6 @@ public final class ApplicationDtos {
         @NotNull @Valid @Size(max = 10, message = "At most 10 links") List<SocialLinkRequest> links
     ) {}
 
-    // ---------- responses ----------
 
     public record QualificationResponse(
         Long id, String title, String institution, String fieldOfStudy,
