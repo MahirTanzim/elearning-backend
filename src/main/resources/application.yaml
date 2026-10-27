@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/elearning
     username: postgres
-    password: your_password
+    password: 1234
   servlet:
     multipart:
       max-file-size: 5MB

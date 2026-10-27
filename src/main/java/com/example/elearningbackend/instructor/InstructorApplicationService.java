@@ -142,6 +142,8 @@ public class InstructorApplicationService {
         }
 
         p.setApplicationStatus(InstructorProfile.PENDING);
+        // every review starts from zero: the admin must verify again
+        p.getQualifications().forEach(q -> q.setVerified(false));
         p.setSubmittedAt(LocalDateTime.now());
         p.setRejectionReason(null);
         return ApplicationResponse.from(p);
