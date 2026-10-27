@@ -1,6 +1,7 @@
 package com.example.elearningbackend.instructor;
 
 import com.example.elearningbackend.instructor.ApplicationDtos.*;
+import com.example.elearningbackend.storage.StorageCleanup;
 import com.example.elearningbackend.user.User;
 import com.example.elearningbackend.user.UserRepository;
 import java.net.URI;
@@ -20,19 +21,20 @@ import org.springframework.web.server.ResponseStatusException;
 public class InstructorApplicationService {
 
     private static final Set<String> PROFILE_EDITABLE = Set.of(
-        InstructorProfile.DRAFT, InstructorProfile.REJECTED, InstructorProfile.APPROVED);
+            InstructorProfile.DRAFT, InstructorProfile.REJECTED, InstructorProfile.APPROVED);
     private static final Set<String> QUALIFICATIONS_EDITABLE = Set.of(
-        InstructorProfile.DRAFT, InstructorProfile.REJECTED);
+            InstructorProfile.DRAFT, InstructorProfile.REJECTED);
     private static final int MAX_QUALIFICATIONS = 10;
 
     private final InstructorProfileRepository profiles;
     private final UserRepository users;
+    private final StorageCleanup cleanup;
 
     @Transactional(readOnly = true)
     public ApplicationResponse getMine(Long userId) {
         return profiles.findByUserId(userId)
-            .map(ApplicationResponse::from)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No application yet"));
+                .map(ApplicationResponse::from)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No application yet"));
     }
 
     @Transactional
@@ -77,12 +79,14 @@ public class InstructorApplicationService {
     public ApplicationResponse deleteQualification(Long userId, Long qualificationId) {
         InstructorProfile p = getOrCreate(userId);
         requireEditable(p, QUALIFICATIONS_EDITABLE);
-
-        // we only search inside THIS user's own list, so other people's ids are simply "not found"
-        boolean removed = p.getQualifications().removeIf(q -> q.getId().equals(qualificationId));
-        if (!removed) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Qualification not found");
-        }
+        Qualification target = p.getQualifications().stream()
+                .filter(q -> q.getId().equals(qualificationId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Qualification not found"));
+        // we only search inside THIS user's own list, so other people's ids are simply
+        // "not found"
+        target.getDocuments().forEach(d -> cleanup.deleteAfterCommit(d.getStorageKey()));
+        p.getQualifications().remove(target);
         return ApplicationResponse.from(profiles.saveAndFlush(p));
     }
 
@@ -111,7 +115,7 @@ public class InstructorApplicationService {
     @Transactional
     public ApplicationResponse submit(Long userId) {
         InstructorProfile p = profiles.findByUserId(userId)
-            .orElseThrow(() -> bad("Fill in your profile first"));
+                .orElseThrow(() -> bad("Fill in your profile first"));
 
         String status = p.getApplicationStatus();
         if (InstructorProfile.PENDING.equals(status)) {
@@ -141,7 +145,7 @@ public class InstructorApplicationService {
     private InstructorProfile getOrCreate(Long userId) {
         return profiles.findByUserId(userId).orElseGet(() -> {
             User user = users.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
             InstructorProfile p = new InstructorProfile();
             p.setUser(user);
             return profiles.save(p);
@@ -151,7 +155,7 @@ public class InstructorApplicationService {
     private void requireEditable(InstructorProfile p, Set<String> allowedStatuses) {
         if (!allowedStatuses.contains(p.getApplicationStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "This cannot be changed while the application is " + p.getApplicationStatus());
+                    "This cannot be changed while the application is " + p.getApplicationStatus());
         }
     }
 
@@ -161,8 +165,9 @@ public class InstructorApplicationService {
             URI uri = new URI(url);
             String scheme = uri.getScheme();
             boolean ok = uri.getHost() != null && scheme != null
-                && (scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https"));
-            if (!ok) throw bad("Links must start with http:// or https://");
+                    && (scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https"));
+            if (!ok)
+                throw bad("Links must start with http:// or https://");
             return url;
         } catch (URISyntaxException e) {
             throw bad("Invalid link: " + url);
@@ -170,7 +175,8 @@ public class InstructorApplicationService {
     }
 
     private String clean(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }
