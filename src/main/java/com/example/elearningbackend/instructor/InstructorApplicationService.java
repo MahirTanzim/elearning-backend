@@ -1,5 +1,6 @@
 package com.example.elearningbackend.instructor;
 
+import com.example.elearningbackend.auth.AccountService;
 import com.example.elearningbackend.instructor.ApplicationDtos.*;
 import com.example.elearningbackend.storage.StorageCleanup;
 import com.example.elearningbackend.user.User;
@@ -133,14 +134,18 @@ public class InstructorApplicationService {
         if (p.getQualifications().isEmpty()) {
             throw bad("Add at least one qualification");
         }
+        for (Qualification q : p.getQualifications()) {
+            boolean needsProof = "DEGREE".equals(q.getType()) || "CERTIFICATION".equals(q.getType());
+            if (needsProof && q.getDocuments().isEmpty()) {
+                throw bad("Upload a proof document for: " + q.getTitle());
+            }
+        }
 
         p.setApplicationStatus(InstructorProfile.PENDING);
         p.setSubmittedAt(LocalDateTime.now());
         p.setRejectionReason(null);
         return ApplicationResponse.from(p);
     }
-
-    // ---------- helpers ----------
 
     private InstructorProfile getOrCreate(Long userId) {
         return profiles.findByUserId(userId).orElseGet(() -> {
