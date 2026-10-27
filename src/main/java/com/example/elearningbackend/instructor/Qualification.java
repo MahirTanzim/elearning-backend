@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "instructor_qualifications")
@@ -40,4 +42,9 @@ public class Qualification {
 
     @Column(nullable = false)
     private boolean verified = false;
+
+    
+    @OneToMany(mappedBy = "qualification", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
+    private List<QualificationDocument> documents = new ArrayList<>();
 }

@@ -2,7 +2,11 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/elearning
     username: postgres
-    password: 1234
+    password: your_password
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   jpa:
     open-in-view: false
     hibernate:
@@ -30,6 +34,8 @@ server:
 
 app:
   frontend-url: http://localhost:5173
+  storage:
+    local-root: ${STORAGE_ROOT:./storage}
   mail:
     enabled: ${MAIL_ENABLED:false}
     from: ${MAIL_FROM:no-reply@elearning.local}

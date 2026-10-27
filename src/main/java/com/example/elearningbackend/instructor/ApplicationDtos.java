@@ -41,10 +41,13 @@ public final class ApplicationDtos {
         @NotNull @Valid @Size(max = 10, message = "At most 10 links") List<SocialLinkRequest> links
     ) {}
 
+    public record DocumentResponse(Long id, String fileName, String ContentType, long sizeBytes) {
+    }
 
     public record QualificationResponse(
         Long id, String title, String institution, String fieldOfStudy,
-        Integer startYear, Integer endYear, String type, boolean verified
+        Integer startYear, Integer endYear, String type, boolean verified,
+        List<DocumentResponse> documents
     ) {}
 
     public record SocialLinkResponse(String platform, String url) {}
@@ -71,7 +74,9 @@ public final class ApplicationDtos {
                 p.getSubmittedAt(),
                 p.getQualifications().stream()
                     .map(q -> new QualificationResponse(q.getId(), q.getTitle(), q.getInstitution(),
-                        q.getFieldOfStudy(), q.getStartYear(), q.getEndYear(), q.getType(), q.isVerified()))
+                        q.getFieldOfStudy(), q.getStartYear(), q.getEndYear(), q.getType(), q.isVerified(), q.getDocuments().stream()
+                    .map(d->new DocumentResponse(d.getId(),d.getOriginalName(), d.getContentType(), d.getSizeBytes()))
+                .toList()))
                     .toList(),
                 p.getSocialLinks().stream()
                     .map(l -> new SocialLinkResponse(l.getPlatform(), l.getUrl()))
