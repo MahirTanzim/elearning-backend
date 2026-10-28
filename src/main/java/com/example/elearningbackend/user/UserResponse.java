@@ -9,7 +9,8 @@ public record UserResponse(
     String fullName,
     String status,
     boolean emailVerified,
-    Set<String> roles
+    Set<String> roles,
+    String avatarUrl
 ) {
     public static UserResponse from(User user) {
         return new UserResponse(
@@ -18,7 +19,9 @@ public record UserResponse(
             user.getFullName(),
             user.getStatus(),
             user.isEmailVerified(),
-            user.getRoles().stream().map(Role::getName).collect(Collectors.toSet())
+            user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()),
+            AvatarUrls.of(user)
+            
         );
     }
 }
