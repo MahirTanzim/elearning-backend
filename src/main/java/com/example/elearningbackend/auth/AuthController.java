@@ -24,7 +24,7 @@ public class AuthController {
         return authService.login(request);
     }
 
-        @PostMapping("/refresh")
+    @PostMapping("/refresh")
     public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
         return authService.refresh(request);
     }
@@ -35,7 +35,7 @@ public class AuthController {
         authService.logout(request);
     }
 
-        private final AccountService accountService;   // next to authService
+    private final AccountService accountService; // next to authService
 
     @PostMapping("/verify-email")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -60,6 +60,5 @@ public class AuthController {
     public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         accountService.resetPassword(request.token(), request.newPassword());
     }
-
 
 }

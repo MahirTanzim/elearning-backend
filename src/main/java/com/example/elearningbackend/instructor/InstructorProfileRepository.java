@@ -9,7 +9,15 @@ public interface InstructorProfileRepository extends JpaRepository<InstructorPro
 
     Optional<InstructorProfile> findByUserId(Long userId);
 
-    // loads the user in the same query, avoiding one extra query per row
     @EntityGraph(attributePaths = "user")
     List<InstructorProfile> findByApplicationStatusOrderBySubmittedAtAsc(String status);
+
+    // public pages: approved profiles whose account is also active (banned people disappear)
+    @EntityGraph(attributePaths = "user")
+    List<InstructorProfile> findTop50ByApplicationStatusAndUserStatusOrderByReviewedAtDesc(
+        String applicationStatus, String userStatus);
+
+    @EntityGraph(attributePaths = "user")
+    Optional<InstructorProfile> findByIdAndApplicationStatusAndUserStatus(
+        Long id, String applicationStatus, String userStatus);
 }
