@@ -30,7 +30,7 @@ spring:
             scope: openid,profile,email
 
 server:
-  port: 8080
+  port: 9090
 
 app:
   frontend-url: http://localhost:5173

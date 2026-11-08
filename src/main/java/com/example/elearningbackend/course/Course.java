@@ -59,7 +59,7 @@ public class Course {
     private BigDecimal price = BigDecimal.ZERO;
 
     @Column(nullable = false, length = 3)
-    private String currency = "USD";
+    private String currency = "BDT";
 
     @Column(name = "what_you_learn", length = 2000)
     private String whatYouLearn;
