@@ -12,12 +12,13 @@ public interface InstructorProfileRepository extends JpaRepository<InstructorPro
     @EntityGraph(attributePaths = "user")
     List<InstructorProfile> findByApplicationStatusOrderBySubmittedAtAsc(String status);
 
-    // public pages: approved profiles whose account is also active (banned people disappear)
+    // public pages: approved profiles whose account is also active (banned people
+    // disappear)
     @EntityGraph(attributePaths = "user")
     List<InstructorProfile> findTop50ByApplicationStatusAndUserStatusOrderByReviewedAtDesc(
-        String applicationStatus, String userStatus);
+            String applicationStatus, String userStatus);
 
     @EntityGraph(attributePaths = "user")
     Optional<InstructorProfile> findByIdAndApplicationStatusAndUserStatus(
-        Long id, String applicationStatus, String userStatus);
+            Long id, String applicationStatus, String userStatus);
 }

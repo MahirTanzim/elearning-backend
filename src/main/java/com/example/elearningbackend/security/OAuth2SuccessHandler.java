@@ -25,8 +25,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
+            HttpServletResponse response,
+            Authentication authentication) throws IOException {
         OidcUser google = (OidcUser) authentication.getPrincipal();
 
         if (google.getEmail() == null || !Boolean.TRUE.equals(google.getEmailVerified())) {
@@ -36,15 +36,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         try {
             GoogleAuthService.Tokens tokens = googleAuthService.loginOrRegister(
-                google.getEmail(),
-                google.getFullName(),
-                google.getPicture(),
-                google.getSubject()
-            );
+                    google.getEmail(),
+                    google.getFullName(),
+                    google.getPicture(),
+                    google.getSubject());
 
             response.sendRedirect(frontendUrl + "/oauth2/success"
-                + "#accessToken=" + encode(tokens.accessToken())
-                + "&refreshToken=" + encode(tokens.refreshToken()));
+                    + "#accessToken=" + encode(tokens.accessToken())
+                    + "&refreshToken=" + encode(tokens.refreshToken()));
         } catch (ResponseStatusException e) {
             response.sendRedirect(frontendUrl + "/login?error=account_not_active");
         }

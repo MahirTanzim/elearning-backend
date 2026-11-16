@@ -21,12 +21,11 @@ public class QualificationDocumentController {
 
     private final QualificationDocumentService service;
 
-    @PostMapping(value = "/api/instructor-application/qualifications/{id}/documents",
-                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/api/instructor-application/qualifications/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ApplicationResponse upload(@AuthenticationPrincipal Jwt jwt,
-                                      @PathVariable Long id,
-                                      @RequestParam("file") MultipartFile file) {
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
         return service.upload(Long.valueOf(jwt.getSubject()), id, file);
     }
 
@@ -38,18 +37,19 @@ public class QualificationDocumentController {
     /** The only way to read a document: owner or admin. */
     @GetMapping("/api/documents/{documentId}")
     public ResponseEntity<Resource> download(@AuthenticationPrincipal Jwt jwt,
-                                             Authentication authentication,
-                                             @PathVariable Long documentId) {
+            Authentication authentication,
+            @PathVariable Long documentId) {
         boolean isAdmin = authentication.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        QualificationDocumentService.Download file =
-            service.download(Long.valueOf(jwt.getSubject()), isAdmin, documentId);
+        QualificationDocumentService.Download file = service.download(Long.valueOf(jwt.getSubject()), isAdmin,
+                documentId);
 
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(file.contentType()))
-            .header(HttpHeaders.CONTENT_DISPOSITION,
-                ContentDisposition.attachment().filename(file.fileName(), StandardCharsets.UTF_8).build().toString())
-            .body(file.resource());
+                .contentType(MediaType.parseMediaType(file.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment().filename(file.fileName(), StandardCharsets.UTF_8).build()
+                                .toString())
+                .body(file.resource());
     }
 }

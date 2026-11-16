@@ -11,7 +11,8 @@ public final class TokenUtil {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private TokenUtil() {}
+    private TokenUtil() {
+    }
 
     public static String generateRaw() {
         byte[] bytes = new byte[32];

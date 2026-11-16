@@ -27,8 +27,8 @@ public class AdminInstructorController {
 
     @PutMapping("/qualifications/{id}/verified")
     public ApplicationDetail verify(@AuthenticationPrincipal Jwt jwt,
-                                    @PathVariable Long id,
-                                    @Valid @RequestBody VerifyRequest request) {
+            @PathVariable Long id,
+            @Valid @RequestBody VerifyRequest request) {
         return service.setQualificationVerified(adminId(jwt), id, request.verified());
     }
 
@@ -39,8 +39,8 @@ public class AdminInstructorController {
 
     @PostMapping("/instructor-applications/{id}/reject")
     public ApplicationDetail reject(@AuthenticationPrincipal Jwt jwt,
-                                    @PathVariable Long id,
-                                    @Valid @RequestBody RejectRequest request) {
+            @PathVariable Long id,
+            @Valid @RequestBody RejectRequest request) {
         return service.reject(adminId(jwt), id, request.reason());
     }
 

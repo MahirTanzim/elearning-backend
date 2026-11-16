@@ -18,9 +18,10 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class PublicAvatarController {
 
-    // Only "<uuid>.png" or "<uuid>.jpg". Anything else is rejected before touching storage.
+    // Only "<uuid>.png" or "<uuid>.jpg". Anything else is rejected before touching
+    // storage.
     private static final Pattern FILE_NAME = Pattern.compile(
-        "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(png|jpg)$");
+            "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(png|jpg)$");
 
     private final StorageService storage;
 
@@ -35,9 +36,9 @@ public class PublicAvatarController {
         MediaType type = file.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.IMAGE_JPEG;
 
         return ResponseEntity.ok()
-            .contentType(type)
-            .cacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic().immutable())
-            .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
-            .body(resource);
+                .contentType(type)
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic().immutable())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                .body(resource);
     }
 }

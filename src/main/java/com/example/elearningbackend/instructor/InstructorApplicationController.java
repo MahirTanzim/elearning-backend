@@ -22,26 +22,26 @@ public class InstructorApplicationController {
 
     @PutMapping
     public ApplicationResponse saveProfile(@AuthenticationPrincipal Jwt jwt,
-                                           @Valid @RequestBody ProfileRequest request) {
+            @Valid @RequestBody ProfileRequest request) {
         return service.saveProfile(userId(jwt), request);
     }
 
     @PostMapping("/qualifications")
     @ResponseStatus(HttpStatus.CREATED)
     public ApplicationResponse addQualification(@AuthenticationPrincipal Jwt jwt,
-                                                @Valid @RequestBody QualificationRequest request) {
+            @Valid @RequestBody QualificationRequest request) {
         return service.addQualification(userId(jwt), request);
     }
 
     @DeleteMapping("/qualifications/{id}")
     public ApplicationResponse deleteQualification(@AuthenticationPrincipal Jwt jwt,
-                                                   @PathVariable Long id) {
+            @PathVariable Long id) {
         return service.deleteQualification(userId(jwt), id);
     }
 
     @PutMapping("/social-links")
     public ApplicationResponse saveLinks(@AuthenticationPrincipal Jwt jwt,
-                                         @Valid @RequestBody SocialLinksRequest request) {
+            @Valid @RequestBody SocialLinksRequest request) {
         return service.replaceSocialLinks(userId(jwt), request);
     }
 

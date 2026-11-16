@@ -12,12 +12,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;  
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class RefreshTokenService {
 
-    public record Rotated(User user, String newRefreshToken) {}
+    public record Rotated(User user, String newRefreshToken) {
+    }
 
     private final RefreshTokenRepository repository;
     private final SecureRandom random = new SecureRandom();
@@ -29,7 +30,10 @@ public class RefreshTokenService {
     @Value("${app.jwt.refresh-token-days}")
     private long refreshTokenDays;
 
-    /** Creates a token, stores its hash, and returns the raw value (the only time it exists). */
+    /**
+     * Creates a token, stores its hash, and returns the raw value (the only time it
+     * exists).
+     */
     @Transactional
     public String create(User user) {
         byte[] bytes = new byte[32];
@@ -48,7 +52,7 @@ public class RefreshTokenService {
     @Transactional(noRollbackFor = ResponseStatusException.class)
     public Rotated rotate(String raw) {
         RefreshToken token = repository.findByTokenHash(hash(raw))
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
         User user = token.getUser();
 

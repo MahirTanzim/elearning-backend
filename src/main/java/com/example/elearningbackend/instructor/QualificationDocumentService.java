@@ -35,7 +35,8 @@ public class QualificationDocumentService {
         }
     }
 
-    public record Download(Resource resource, String fileName, String contentType) {}
+    public record Download(Resource resource, String fileName, String contentType) {
+    }
 
     private final InstructorProfileRepository profiles;
     private final QualificationDocumentRepository documents;
@@ -48,9 +49,9 @@ public class QualificationDocumentService {
         requireEditable(profile);
 
         Qualification qualification = profile.getQualifications().stream()
-            .filter(q -> q.getId().equals(qualificationId))
-            .findFirst()
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Qualification not found"));
+                .filter(q -> q.getId().equals(qualificationId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Qualification not found"));
 
         if (qualification.getDocuments().size() >= MAX_PER_QUALIFICATION) {
             throw bad("You can upload at most " + MAX_PER_QUALIFICATION + " files per qualification");
@@ -81,7 +82,7 @@ public class QualificationDocumentService {
         doc.setQualification(qualification);
         doc.setStorageKey(key);
         doc.setOriginalName(safeName(file.getOriginalFilename(), type));
-        doc.setContentType(type.contentType);   // our detected type, never the client's claim
+        doc.setContentType(type.contentType); // our detected type, never the client's claim
         doc.setSizeBytes(data.length);
         qualification.getDocuments().add(doc);
 
@@ -108,7 +109,7 @@ public class QualificationDocumentService {
     @Transactional(readOnly = true)
     public Download download(Long userId, boolean isAdmin, Long documentId) {
         QualificationDocument doc = documents.findById(documentId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         Long ownerId = doc.getQualification().getInstructor().getUser().getId();
         if (!isAdmin && !ownerId.equals(userId)) {
@@ -122,28 +123,35 @@ public class QualificationDocumentService {
 
     private InstructorProfile myProfile(Long userId) {
         return profiles.findByUserId(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No application yet"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No application yet"));
     }
 
     private void requireEditable(InstructorProfile profile) {
         if (!EDITABLE.contains(profile.getApplicationStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Documents cannot be changed while the application is " + profile.getApplicationStatus());
+                    "Documents cannot be changed while the application is " + profile.getApplicationStatus());
         }
     }
 
-    /** Looks at the first bytes of the file, not at its name or the declared type. */
+    /**
+     * Looks at the first bytes of the file, not at its name or the declared type.
+     */
     private FileType detect(byte[] d) {
-        if (startsWith(d, 0x25, 0x50, 0x44, 0x46, 0x2D)) return FileType.PDF;                    // %PDF-
-        if (startsWith(d, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) return FileType.PNG;
-        if (startsWith(d, 0xFF, 0xD8, 0xFF)) return FileType.JPEG;
+        if (startsWith(d, 0x25, 0x50, 0x44, 0x46, 0x2D))
+            return FileType.PDF; // %PDF-
+        if (startsWith(d, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A))
+            return FileType.PNG;
+        if (startsWith(d, 0xFF, 0xD8, 0xFF))
+            return FileType.JPEG;
         return null;
     }
 
     private boolean startsWith(byte[] data, int... signature) {
-        if (data.length < signature.length) return false;
+        if (data.length < signature.length)
+            return false;
         for (int i = 0; i < signature.length; i++) {
-            if ((data[i] & 0xFF) != signature[i]) return false;
+            if ((data[i] & 0xFF) != signature[i])
+                return false;
         }
         return true;
     }
@@ -153,7 +161,8 @@ public class QualificationDocumentService {
         String name = original == null ? "" : original.replace('\\', '/');
         name = name.substring(name.lastIndexOf('/') + 1);
         name = name.replaceAll("[^A-Za-z0-9._ -]", "_").trim();
-        if (name.length() > 100) name = name.substring(name.length() - 100);
+        if (name.length() > 100)
+            name = name.substring(name.length() - 100);
         return name.isBlank() ? "document." + type.extension : name;
     }
 

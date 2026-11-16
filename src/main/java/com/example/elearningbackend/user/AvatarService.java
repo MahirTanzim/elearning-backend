@@ -29,10 +29,12 @@ public class AvatarService {
     @Transactional
     public UserResponse upload(Long userId, MultipartFile file) {
         User user = users.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        if (file.isEmpty()) throw bad("The file is empty");
-        if (file.getSize() > MAX_BYTES) throw bad("Image is too large (max 2 MB)");
+        if (file.isEmpty())
+            throw bad("The file is empty");
+        if (file.getSize() > MAX_BYTES)
+            throw bad("Image is too large (max 2 MB)");
 
         byte[] data;
         try {
@@ -42,7 +44,8 @@ public class AvatarService {
         }
 
         String extension = detectExtension(data);
-        if (extension == null) throw bad("Only PNG and JPG images are allowed");
+        if (extension == null)
+            throw bad("Only PNG and JPG images are allowed");
         checkDimensions(data);
 
         String key = storage.store("avatars", data, extension);
@@ -50,7 +53,8 @@ public class AvatarService {
 
         String oldKey = user.getAvatarKey();
         user.setAvatarKey(key);
-        if (oldKey != null) cleanup.deleteAfterCommit(oldKey);
+        if (oldKey != null)
+            cleanup.deleteAfterCommit(oldKey);
 
         return UserResponse.from(users.saveAndFlush(user));
     }
@@ -58,7 +62,7 @@ public class AvatarService {
     @Transactional
     public UserResponse remove(Long userId) {
         User user = users.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         String oldKey = user.getAvatarKey();
         if (oldKey != null) {
@@ -70,17 +74,24 @@ public class AvatarService {
 
     // ---------- helpers ----------
 
-    /** Looks at the first bytes, not at the file name or the type the browser claims. */
+    /**
+     * Looks at the first bytes, not at the file name or the type the browser
+     * claims.
+     */
     private String detectExtension(byte[] d) {
-        if (startsWith(d, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) return "png";
-        if (startsWith(d, 0xFF, 0xD8, 0xFF)) return "jpg";
+        if (startsWith(d, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A))
+            return "png";
+        if (startsWith(d, 0xFF, 0xD8, 0xFF))
+            return "jpg";
         return null;
     }
 
     private boolean startsWith(byte[] data, int... signature) {
-        if (data.length < signature.length) return false;
+        if (data.length < signature.length)
+            return false;
         for (int i = 0; i < signature.length; i++) {
-            if ((data[i] & 0xFF) != signature[i]) return false;
+            if ((data[i] & 0xFF) != signature[i])
+                return false;
         }
         return true;
     }
@@ -88,9 +99,11 @@ public class AvatarService {
     /** Reads only the image header (width and height), never the pixels. */
     private void checkDimensions(byte[] data) {
         try (ImageInputStream in = ImageIO.createImageInputStream(new ByteArrayInputStream(data))) {
-            if (in == null) throw bad("Could not read the image");
+            if (in == null)
+                throw bad("Could not read the image");
             Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
-            if (!readers.hasNext()) throw bad("Could not read the image");
+            if (!readers.hasNext())
+                throw bad("Could not read the image");
 
             ImageReader reader = readers.next();
             try {

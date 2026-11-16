@@ -43,7 +43,6 @@ public class Qualification {
     @Column(nullable = false)
     private boolean verified = false;
 
-    
     @OneToMany(mappedBy = "qualification", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<QualificationDocument> documents = new ArrayList<>();

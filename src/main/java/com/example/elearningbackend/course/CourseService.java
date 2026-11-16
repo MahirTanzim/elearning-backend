@@ -42,8 +42,8 @@ public class CourseService {
     public List<CourseSummary> listMine(Long userId) {
         requireInstructor(userId);
         return courses.findByInstructorUserIdOrderByUpdatedAtDesc(userId).stream()
-            .map(CourseSummary::from)
-            .toList();
+                .map(CourseSummary::from)
+                .toList();
     }
 
     @Transactional
@@ -187,10 +187,13 @@ public class CourseService {
 
     // ---------- ownership ----------
 
-    /** Only approved, active instructors may use the builder. Checked against the database, not just the token. */
+    /**
+     * Only approved, active instructors may use the builder. Checked against the
+     * database, not just the token.
+     */
     private InstructorProfile requireInstructor(Long userId) {
         InstructorProfile profile = profiles.findByUserId(userId)
-            .orElseThrow(this::notInstructor);
+                .orElseThrow(this::notInstructor);
         if (!InstructorProfile.APPROVED.equals(profile.getApplicationStatus())
                 || !"ACTIVE".equals(profile.getUser().getStatus())) {
             throw notInstructor();
@@ -201,13 +204,13 @@ public class CourseService {
     private Course ownedCourse(Long userId, Long courseId) {
         requireInstructor(userId);
         return courses.findByIdAndInstructorUserId(courseId, userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
     }
 
     private Section ownedSection(Long userId, Long sectionId) {
         requireInstructor(userId);
         Section section = sections.findById(sectionId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
         if (!section.getCourse().getInstructor().getUser().getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found");
         }
@@ -217,7 +220,7 @@ public class CourseService {
     private Lesson ownedLesson(Long userId, Long lessonId) {
         requireInstructor(userId);
         Lesson lesson = lessons.findById(lessonId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
         if (!lesson.getSection().getCourse().getInstructor().getUser().getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found");
         }
@@ -227,7 +230,7 @@ public class CourseService {
     private void requireEditable(Course course) {
         if (!EDITABLE.contains(course.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "This course cannot be changed while it is " + course.getStatus());
+                    "This course cannot be changed while it is " + course.getStatus());
         }
     }
 
@@ -235,7 +238,7 @@ public class CourseService {
 
     private void applyDetails(Course course, CourseRequest r) {
         Category category = categories.findById(r.categoryId())
-            .orElseThrow(() -> bad("Unknown category"));
+                .orElseThrow(() -> bad("Unknown category"));
 
         course.setCategory(category);
         course.setTitle(r.title().trim());
@@ -250,10 +253,12 @@ public class CourseService {
 
     private String uniqueSlug(String title) {
         String base = title.toLowerCase(Locale.ROOT)
-            .replaceAll("[^a-z0-9]+", "-")
-            .replaceAll("^-+|-+$", "");
-        if (base.length() > 100) base = base.substring(0, 100).replaceAll("-+$", "");
-        if (base.isEmpty()) base = "course";   // e.g. a title written only in Bengali
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (base.length() > 100)
+            base = base.substring(0, 100).replaceAll("-+$", "");
+        if (base.isEmpty())
+            base = "course"; // e.g. a title written only in Bengali
 
         String slug = base;
         while (courses.existsBySlug(slug)) {
@@ -274,8 +279,12 @@ public class CourseService {
         }
     }
 
-    /** The list must contain exactly the current ids, each once, in the wanted order. */
-    private <T> void reorder(List<T> items, List<Long> ids, Function<T, Long> idOf, BiConsumer<T, Integer> setPosition) {
+    /**
+     * The list must contain exactly the current ids, each once, in the wanted
+     * order.
+     */
+    private <T> void reorder(List<T> items, List<Long> ids, Function<T, Long> idOf,
+            BiConsumer<T, Integer> setPosition) {
         Set<Long> current = items.stream().map(idOf).collect(Collectors.toSet());
         if (ids.size() != items.size() || !current.equals(new HashSet<>(ids))) {
             throw bad("The list must contain every item exactly once");
@@ -287,7 +296,8 @@ public class CourseService {
     }
 
     private String clean(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }

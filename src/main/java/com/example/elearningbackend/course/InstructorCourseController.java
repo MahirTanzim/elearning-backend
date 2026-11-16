@@ -36,7 +36,7 @@ public class InstructorCourseController {
 
     @PutMapping("/courses/{id}")
     public CourseDetail update(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id,
-                               @Valid @RequestBody CourseRequest request) {
+            @Valid @RequestBody CourseRequest request) {
         return service.update(userId(jwt), id, request);
     }
 
@@ -51,19 +51,19 @@ public class InstructorCourseController {
     @PostMapping("/courses/{id}/sections")
     @ResponseStatus(HttpStatus.CREATED)
     public CourseDetail addSection(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id,
-                                   @Valid @RequestBody SectionRequest request) {
+            @Valid @RequestBody SectionRequest request) {
         return service.addSection(userId(jwt), id, request);
     }
 
     @PutMapping("/courses/{id}/sections/order")
     public CourseDetail reorderSections(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id,
-                                        @Valid @RequestBody OrderRequest request) {
+            @Valid @RequestBody OrderRequest request) {
         return service.reorderSections(userId(jwt), id, request);
     }
 
     @PutMapping("/sections/{sectionId}")
     public CourseDetail renameSection(@AuthenticationPrincipal Jwt jwt, @PathVariable Long sectionId,
-                                      @Valid @RequestBody SectionRequest request) {
+            @Valid @RequestBody SectionRequest request) {
         return service.renameSection(userId(jwt), sectionId, request);
     }
 
@@ -77,19 +77,19 @@ public class InstructorCourseController {
     @PostMapping("/sections/{sectionId}/lessons")
     @ResponseStatus(HttpStatus.CREATED)
     public CourseDetail addLesson(@AuthenticationPrincipal Jwt jwt, @PathVariable Long sectionId,
-                                  @Valid @RequestBody LessonCreateRequest request) {
+            @Valid @RequestBody LessonCreateRequest request) {
         return service.addLesson(userId(jwt), sectionId, request);
     }
 
     @PutMapping("/sections/{sectionId}/lessons/order")
     public CourseDetail reorderLessons(@AuthenticationPrincipal Jwt jwt, @PathVariable Long sectionId,
-                                       @Valid @RequestBody OrderRequest request) {
+            @Valid @RequestBody OrderRequest request) {
         return service.reorderLessons(userId(jwt), sectionId, request);
     }
 
     @PutMapping("/lessons/{lessonId}")
     public CourseDetail updateLesson(@AuthenticationPrincipal Jwt jwt, @PathVariable Long lessonId,
-                                     @Valid @RequestBody LessonUpdateRequest request) {
+            @Valid @RequestBody LessonUpdateRequest request) {
         return service.updateLesson(userId(jwt), lessonId, request);
     }
 

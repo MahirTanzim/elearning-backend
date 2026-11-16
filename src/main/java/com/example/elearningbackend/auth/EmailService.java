@@ -23,8 +23,9 @@ public class EmailService {
 
     public void send(String to, String subject, String body) {
         if (!enabled) {
-            log.info("\n===== EMAIL (dev mode, not actually sent) =====\nTo: {}\nSubject: {}\n\n{}\n===============================================",
-                to, subject, body);
+            log.info(
+                    "\n===== EMAIL (dev mode, not actually sent) =====\nTo: {}\nSubject: {}\n\n{}\n===============================================",
+                    to, subject, body);
             return;
         }
 

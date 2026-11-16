@@ -40,18 +40,20 @@ public class AccountService {
 
     @Transactional
     public void sendVerificationEmail(User user) {
-        if (user.isEmailVerified()) return;
-        if (recentlySent(user, UserToken.EMAIL_VERIFICATION)) return;
+        if (user.isEmailVerified())
+            return;
+        if (recentlySent(user, UserToken.EMAIL_VERIFICATION))
+            return;
 
         String raw = createToken(user, UserToken.EMAIL_VERIFICATION,
-            LocalDateTime.now().plusHours(verificationHours));
+                LocalDateTime.now().plusHours(verificationHours));
 
         sendSafely(user.getEmail(), "Verify your email",
-            "Hi " + user.getFullName() + ",\n\n"
-          + "Please confirm your email address by opening this link:\n\n"
-          + frontendUrl + "/verify-email?token=" + raw + "\n\n"
-          + "The link expires in " + verificationHours + " hours.\n"
-          + "If you did not create an account, you can ignore this email.");
+                "Hi " + user.getFullName() + ",\n\n"
+                        + "Please confirm your email address by opening this link:\n\n"
+                        + frontendUrl + "/verify-email?token=" + raw + "\n\n"
+                        + "The link expires in " + verificationHours + " hours.\n"
+                        + "If you did not create an account, you can ignore this email.");
     }
 
     @Transactional
@@ -71,18 +73,20 @@ public class AccountService {
     @Transactional
     public void forgotPassword(String email) {
         userRepository.findByEmail(normalize(email)).ifPresent(user -> {
-            if (!"ACTIVE".equals(user.getStatus())) return;
-            if (recentlySent(user, UserToken.PASSWORD_RESET)) return;
+            if (!"ACTIVE".equals(user.getStatus()))
+                return;
+            if (recentlySent(user, UserToken.PASSWORD_RESET))
+                return;
 
             String raw = createToken(user, UserToken.PASSWORD_RESET,
-                LocalDateTime.now().plusMinutes(resetMinutes));
+                    LocalDateTime.now().plusMinutes(resetMinutes));
 
             sendSafely(user.getEmail(), "Reset your password",
-                "Hi " + user.getFullName() + ",\n\n"
-              + "We received a request to reset your password. Open this link to choose a new one:\n\n"
-              + frontendUrl + "/reset-password?token=" + raw + "\n\n"
-              + "The link expires in " + resetMinutes + " minutes.\n"
-              + "If you did not ask for this, you can ignore this email. Your password stays the same.");
+                    "Hi " + user.getFullName() + ",\n\n"
+                            + "We received a request to reset your password. Open this link to choose a new one:\n\n"
+                            + frontendUrl + "/reset-password?token=" + raw + "\n\n"
+                            + "The link expires in " + resetMinutes + " minutes.\n"
+                            + "If you did not ask for this, you can ignore this email. Your password stays the same.");
         });
     }
 
@@ -123,8 +127,8 @@ public class AccountService {
 
     private UserToken findValid(String rawToken, String type) {
         UserToken token = tokenRepository
-            .findByTokenHashAndType(TokenUtil.sha256(rawToken), type)
-            .orElseThrow(this::invalidToken);
+                .findByTokenHashAndType(TokenUtil.sha256(rawToken), type)
+                .orElseThrow(this::invalidToken);
 
         if (token.getUsedAt() != null || token.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw invalidToken();
@@ -134,7 +138,7 @@ public class AccountService {
 
     private boolean recentlySent(User user, String type) {
         return tokenRepository.existsByUserIdAndTypeAndUsedAtIsNullAndCreatedAtAfter(
-            user.getId(), type, LocalDateTime.now().minus(COOLDOWN));
+                user.getId(), type, LocalDateTime.now().minus(COOLDOWN));
     }
 
     private void sendSafely(String to, String subject, String body) {

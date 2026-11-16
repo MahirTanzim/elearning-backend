@@ -29,13 +29,13 @@ public class JwtService {
         List<String> roles = user.getRoles().stream().map(Role::getName).toList();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-            .issuer("elearning")
-            .subject(user.getId().toString())
-            .issuedAt(now)
-            .expiresAt(now.plus(accessTokenTime, ChronoUnit.MINUTES))
-            .claim("email", user.getEmail())
-            .claim("roles", roles)
-            .build();
+                .issuer("elearning")
+                .subject(user.getId().toString())
+                .issuedAt(now)
+                .expiresAt(now.plus(accessTokenTime, ChronoUnit.MINUTES))
+                .claim("email", user.getEmail())
+                .claim("roles", roles)
+                .build();
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();

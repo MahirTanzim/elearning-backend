@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
-@Entity 
-@Table(name= "roles")
+@Entity
+@Table(name = "roles")
 @Getter
-@NoArgsConstructor 
+@NoArgsConstructor
 
 public class Role {
 
@@ -17,5 +16,5 @@ public class Role {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name;   
+    private String name;
 }

@@ -40,6 +40,7 @@ public class LocalStorageService implements StorageService {
         }
         return key;
     }
+
     @Override
     public Resource load(String key) {
         Path path = resolve(key);

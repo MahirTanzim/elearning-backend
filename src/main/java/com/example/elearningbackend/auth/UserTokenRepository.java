@@ -12,12 +12,12 @@ public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
     Optional<UserToken> findByTokenHashAndType(String tokenHash, String type);
 
     boolean existsByUserIdAndTypeAndUsedAtIsNullAndCreatedAtAfter(
-        Long userId, String type, LocalDateTime after);
+            Long userId, String type, LocalDateTime after);
 
     @Modifying
     @Query("update UserToken t set t.usedAt = :now "
-         + "where t.user.id = :userId and t.type = :type and t.usedAt is null")
+            + "where t.user.id = :userId and t.type = :type and t.usedAt is null")
     void invalidateUnused(@Param("userId") Long userId,
-                          @Param("type") String type,
-                          @Param("now") LocalDateTime now);
+            @Param("type") String type,
+            @Param("now") LocalDateTime now);
 }
