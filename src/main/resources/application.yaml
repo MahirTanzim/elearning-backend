@@ -5,8 +5,8 @@ spring:
     password: 1234
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 6MB
+      max-file-size: 200MB
+      max-request-size: 201MB
   jpa:
     open-in-view: false
     hibernate:
@@ -36,6 +36,8 @@ app:
   frontend-url: http://localhost:5173
   storage:
     local-root: ${STORAGE_ROOT:./storage}
+  media:
+    link-minutes: 10
   mail:
     enabled: ${MAIL_ENABLED:false}
     from: ${MAIL_FROM:no-reply@elearning.local}

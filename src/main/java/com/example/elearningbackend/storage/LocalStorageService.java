@@ -1,6 +1,7 @@
 package com.example.elearningbackend.storage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,6 +36,23 @@ public class LocalStorageService implements StorageService {
             Path path = resolve(key);
             Files.createDirectories(path.getParent());
             Files.write(path, data, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not store file", e);
+        }
+        return key;
+    }
+        @Override
+    public String store(String folder, InputStream data, String extension) {
+        String key = folder + "/" + UUID.randomUUID() + "." + extension;
+        try {
+            Path path = resolve(key);
+            Files.createDirectories(path.getParent());
+            try {
+                Files.copy(data, path);
+            } catch (IOException e) {
+                Files.deleteIfExists(path);   // do not leave a half-written file behind
+                throw e;
+            }
         } catch (IOException e) {
             throw new IllegalStateException("Could not store file", e);
         }

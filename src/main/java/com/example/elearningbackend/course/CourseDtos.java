@@ -99,4 +99,10 @@ public final class CourseDtos {
                             .toList());
         }
     }
+
+    /** Public URL for the course thumbnail, or null. */
+    public static String thumbnailUrl(Course c) {
+        String key = c.getThumbnailKey();
+        return key == null ? null : "/api/public/thumbnails/" + key.substring(key.lastIndexOf('/') + 1);
+    }
 }

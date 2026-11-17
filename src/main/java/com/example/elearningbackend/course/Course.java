@@ -90,4 +90,7 @@ public class Course {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "thumbnail_key")
+    private String thumbnailKey;
 }

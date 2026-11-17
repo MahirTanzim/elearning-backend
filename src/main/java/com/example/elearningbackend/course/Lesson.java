@@ -40,4 +40,17 @@ public class Lesson {
 
     @Column(name = "duration_seconds")
     private Integer durationSeconds;
+
+    @Column(name = "file_key")
+    private String fileKey;
+
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_content_type", length = 100)
+    private String fileContentType;
+
+    @Column(name = "file_size_bytes")
+    private String fileSizeBytes;
+    
 }
